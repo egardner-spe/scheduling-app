@@ -4,9 +4,6 @@ from django.utils.timezone import now
 from .models import TimeOffRequest, Shift, ShiftPool
 from .forms import TimeOffRequestForm
 
-def home(request):
-    return render(request, 'shifts/home.html')
-
 @login_required
 def request_time_off(request):
     form = TimeOffRequestForm(request.POST or None)
@@ -38,3 +35,8 @@ def review_time_off(request, request_id, action):
 def admin_time_off_requests(request):
     requests = TimeOffRequest.objects.all()
     return render(request, 'shifts/admin_time_off_list.html', {'requests': requests})
+
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to the Shift Scheduler!")
