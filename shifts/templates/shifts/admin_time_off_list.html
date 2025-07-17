@@ -1,0 +1,12 @@
+<h2>All Time Off Requests (Admin)</h2>
+<ul>
+    {% for req in requests %}
+        <li>
+            {{ req.employee.username }} | {{ req.start_date }} to {{ req.end_date }} — {{ req.status }}
+            {% if req.status == "PENDING" %}
+                <a href="{% url 'review_time_off' req.id 'approve' %}">✅ Approve</a>
+                <a href="{% url 'review_time_off' req.id 'deny' %}">❌ Deny</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
