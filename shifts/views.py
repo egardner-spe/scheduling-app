@@ -3,6 +3,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.timezone import now
 from .models import TimeOffRequest, Shift, ShiftPool
 from .forms import TimeOffRequestForm
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to the Shift Scheduler Home Page!")
+
 
 @login_required
 def request_time_off(request):
