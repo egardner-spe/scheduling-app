@@ -36,7 +36,8 @@ def admin_time_off_requests(request):
     requests = TimeOffRequest.objects.all()
     return render(request, 'shifts/admin_time_off_list.html', {'requests': requests})
 
-from django.http import HttpResponse
+from django.shortcuts import render
 
 def home(request):
-    return HttpResponse("Welcome to the Shift Scheduler!")
+    return render(request, 'shifts/home.html')
+
