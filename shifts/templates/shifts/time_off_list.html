@@ -1,0 +1,6 @@
+<h2>My Time Off Requests</h2>
+<ul>
+    {% for req in requests %}
+        <li>{{ req.start_date }} to {{ req.end_date }} - {{ req.status }}</li>
+    {% endfor %}
+</ul>
