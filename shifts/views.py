@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.forms import modelformset_factory
 from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
 from .forms import TimeOffRequestForm, RegisterForm, ShiftPickupRequestForm, AvailabilityForm
 from django.contrib.auth.decorators import user_passes_test
@@ -130,18 +131,30 @@ def view_my_schedule(request):
     shifts = Shift.objects.filter(user=request.user).order_by('date')
     return render(request, 'shifts/my_schedule.html', {'shifts': shifts})
 
+
+AvailabilityFormSet = modelformset_factory(
+    Availability,
+    form=AvailabilityForm,
+    extra=7,          # one blank form per weekday
+    can_delete=False  # up to you
+)
+
 @login_required
 def set_availability(request):
+    qs = Availability.objects.filter(user=request.user)
     if request.method == 'POST':
-        form = AvailabilityForm(request.POST)
-        if form.is_valid():
-            availability = form.save(commit=False)
-            availability.user = request.user
-            availability.save()
+        formset = AvailabilityFormSet(request.POST, queryset=qs)
+        if formset.is_valid():
+            objects = formset.save(commit=False)
+            for obj in objects:
+                obj.user = request.user
+                obj.save()
             return redirect('home')
     else:
-        form = AvailabilityForm()
-    return render(request, 'shifts/set_availability.html', {'form': form})
+        formset = AvailabilityFormSet(queryset=qs)
+    return render(request, 'shifts/set_availability.html', {'formset': formset})
+
+
 
 @user_passes_test(is_manager)
 def view_all_availabilities(request):
