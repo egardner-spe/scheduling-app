@@ -50,10 +50,12 @@ class ShiftPickupRequest(models.Model):
         return f"{self.requested_by.username} wants to pick up {self.shift}"
 
 class Availability(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    day = models.CharField(max_length=3, choices=DAYS_OF_WEEK)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    user = models.ForeignKey(User, …)
+    day  = models.CharField(…)
+    is_available = models.BooleanField(default=False)
+    start_time   = models.TimeField()
+    end_time     = models.TimeField()
+
 
     def __str__(self):
         return f"{self.user.username} - {self.day}: {self.start_time} to {self.end_time}"

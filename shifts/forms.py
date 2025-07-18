@@ -29,12 +29,13 @@ class ShiftPickupRequestForm(forms.ModelForm):
 
 class AvailabilityForm(forms.ModelForm):
     class Meta:
-        model = Availability
-        fields = ['day', 'available', 'start_time', 'end_time']
+        model  = Availability
+        fields = ['day','is_available','start_time','end_time']
         widgets = {
-            'available': forms.CheckboxInput(attrs={'class':'form-check-input'}),
-            'start_time': forms.TimeInput(attrs={'type':'time', 'class':'form-control'}),
-            'end_time':   forms.TimeInput(attrs={'type':'time', 'class':'form-control'}),
-            # day stays hidden in the template
+            'is_available': forms.CheckboxInput(attrs={'class':'form-check-input'}),
+            'start_time':   forms.Select(choices=TIME_CHOICES, attrs={'class':'form-select'}),
+            'end_time':     forms.Select(choices=TIME_CHOICES, attrs={'class':'form-select'}),
+        }
+
         }
 
