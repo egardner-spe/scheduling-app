@@ -1,45 +1,48 @@
-Shiftwise A Scheduling & Shift Management App
+🕒 Shiftwise – Employee Shift Scheduling App
+Shiftwise is a powerful, easy-to-use scheduling platform built with Django. Designed for managers and employees alike, it streamlines everything from viewing shifts to handling time-off requests — all in one place. Whether you're running a store or managing a team, Shiftwise keeps your scheduling process organized, flexible, and efficient.
 
-Shiftwise is a powerful employee scheduling and shift management application built with Django and Bootstrap. Designed for teams of all sizes, Shiftwise simplifies the way managers assign shifts, employees manage availability, and both parties coordinate time-off and shift swaps. Whether you're a small business owner, a store manager, or an hourly worker, Shiftwise helps streamline the scheduling process with clarity and control.
+✨ Core Features
+📅 Shift Management
+✅ View Upcoming Shifts
+🔄 Drop a Shift
+📥 Pick Up Open Shifts
 
-🔧 Features
-Shift Management
-View Schedule: Employees and managers can view assigned shifts in a clean, calendar-friendly layout.
-Drop a Shift: Employees can drop their shifts for others to pick up, subject to manager approval.
-Request to Pick Up: See open shifts and request to claim them with a single click.
-Manager Approval: All dropped or picked-up shifts go through a manager for final approval.
+👩‍💼 Manager Approval for Shift Changes
 
-Availability & Preferences
-Set Weekly Availability: Employees can submit their preferred working days and hours.
-Manager Access to Preferences: Managers can use availability data to make smarter, conflict-free schedules.
+🕰️ Availability & Preferences
+🗓️ Set Weekly Availability
 
-Time Off Requests
-Submit Time Off: Employees can request time off directly from the dashboard.
-Admin Review Panel: Managers can view all requests and approve or deny them with ease.
-Status Tracking: Employees can see if their requests are pending, approved, or denied.
+👀 Managers Can View Availability When Scheduling
 
-User Access Control
-Employee vs Manager Roles: Built-in role-based access ensures the right permissions for each user type.
-Secure Login System: Django’s built-in authentication ensures secure access for all users.
+📝 Time Off Requests
+✍️ Request Time Off with a Simple Form
+🧾 Manager Review Panel to Approve/Deny Requests
+🔔 Track Request Status (Pending, Approved, Denied)
 
-User-Friendly Interface
-Clean Navigation: Organized sidebar and navbar layout for fast access to all features.
-Responsive Design: Fully mobile-friendly for on-the-go scheduling and approvals.
-Form Validation & Feedback: Users are guided through forms with helpful validations and status messages.
+👥 User Access & Authentication
+🔐 Secure Login / Logout
+👤 Employee & Manager Role Separation
+🛡️ Protected Views with Django Decorators
 
-Admin Dashboard
-Approve Shift Pickups: Quickly review and approve pickup requests from your team.
-View All Schedules: Admins can view a master schedule for all employees, sorted by date and user.
+🖥️ Clean & Responsive UI
+🚀 Bootstrap-Powered Interface
+📱 Mobile-Friendly Design
+✅ Validated Forms with Clear User Feedback
 
-🛠️ Tech Stack
+🛠️ Manager Dashboard
+👁️ View All Shifts in Date/User Order
+✔️ Approve or Deny Shift Pickup Requests
+📊 Monitor and Oversee All Team Schedules
+
+⚙️ Tech Stack
 Backend: Django 5.1 (Python)
-Frontend: Bootstrap 5 (HTML/CSS/JS)
-Database: SQLite (default, easily swappable)
-Auth System: Django’s built-in user model with custom registration/login pages
+Frontend: Bootstrap 5 (HTML/CSS)
+Database: SQLite (Easy to replace with PostgreSQL)
+Authentication: Django's built-in auth system with custom templates
 
-🚀 Who It's For
-Managers who need to coordinate shifts and monitor time off.
-Employees who want flexible control over their schedules.
-Teams are looking for a simple way to replace clunky spreadsheets with a modern scheduling solution.
+👀 Who It's For
+👨‍💼 Managers needing a quick, no-fuss way to schedule and review team availability
+🧑‍💻 Employees who want to manage their shifts, availability, and time-off
+💼 Teams tired of spreadsheets and looking for a lightweight, modern alternative
 
 
