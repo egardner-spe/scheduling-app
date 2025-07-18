@@ -141,18 +141,30 @@ AvailabilityFormSet = modelformset_factory(
 
 @login_required
 def set_availability(request):
-    qs = Availability.objects.filter(user=request.user)
+    # 1) Define the seven weekdays
+    DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+    # 2) Build a plain formset factory (no model-queryset binding)
+    AvailabilityFormSet = formset_factory(AvailabilityForm, extra=0)
+
     if request.method == 'POST':
-        formset = AvailabilityFormSet(request.POST, queryset=qs)
+        # Bind POST data to the same number of forms
+        formset = AvailabilityFormSet(request.POST, initial=[{'day': d} for d in DAYS])
         if formset.is_valid():
-            objects = formset.save(commit=False)
-            for obj in objects:
-                obj.user = request.user
-                obj.save()
+            # Save each form, filling in user & day
+            for form, day in zip(formset.forms, DAYS):
+                avail = form.save(commit=False)
+                avail.user = request.user
+                avail.day  = day
+                avail.save()
             return redirect('home')
     else:
-        formset = AvailabilityFormSet(queryset=qs)
-    return render(request, 'shifts/set_availability.html', {'formset': formset})
+        # On GET: create seven forms, each with its `day` pre-set
+        initial_data = [{'day': d} for d in DAYS]
+        formset = AvailabilityFormSet(initial=initial_data)
+
+    return render(request, 'shifts/set_availability.html', {
+        'formset': formset
+    })
 
 
 
