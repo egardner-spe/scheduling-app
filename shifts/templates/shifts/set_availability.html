@@ -7,25 +7,28 @@
     {% csrf_token %}
     <table>
         <thead>
-            <tr>
-                <th>Day</th>
-                <th>Available</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-            </tr>
+        <tr>
+            <th>Day</th>
+            <th>Available</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
         </thead>
         <tbody>
-            {% for form in formset %}
-            <tr>
-                <td>{{ form.day.value }}</td>
-                <td>{{ form.available }}</td>
-                <td>{{ form.start_time }}</td>
-                <td>{{ form.end_time }}</td>
-            </tr>
-            {{ form.day.as_hidden }}
-            {% endfor %}
+        {% for form in formset %}
+        <tr>
+            <td>
+                {{ form.day.value|default:"" }}
+                {{ form.day.as_hidden }}
+            </td>
+            <td>{{ form.available }}</td>
+            <td>{{ form.start_time }}</td>
+            <td>{{ form.end_time }}</td>
+        </tr>
+        {% endfor %}
         </tbody>
     </table>
+
     <button type="submit">Save Availability</button>
 </form>
 {% endblock %}
