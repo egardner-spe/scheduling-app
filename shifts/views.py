@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, formset_factory
 from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
 from .forms import TimeOffRequestForm, RegisterForm, ShiftPickupRequestForm, AvailabilityForm
 from django.contrib.auth.decorators import user_passes_test
