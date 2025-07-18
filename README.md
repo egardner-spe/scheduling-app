@@ -1,4 +1,4 @@
-# 🕒 **Shiftwise – Employee Shift Scheduling App**
+<h1 align="center">🕒 Shiftwise – Employee Shift Scheduling App</h1>
 
 **Shiftwise** is a powerful, easy-to-use scheduling platform built with Django. Designed for managers and employees alike, it streamlines everything from viewing shifts to handling time-off requests — all in one place. Whether you're running a store or managing a team, Shiftwise keeps your scheduling process organized, flexible, and efficient.
 
@@ -50,3 +50,4 @@
 - 👨‍💼 **Managers** needing a quick, no-fuss way to schedule and review team availability  
 - 🧑‍💻 **Employees** who want to manage their shifts, availability, and time-off  
 - 💼 **Teams** tired of spreadsheets and looking for a lightweight, modern alternative  
+
