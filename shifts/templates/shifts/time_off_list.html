@@ -1,6 +1,35 @@
+{% extends 'shifts/base.html' %}
+
+{% block content %}
 <h2>My Time Off Requests</h2>
-<ul>
-    {% for req in requests %}
-        <li>{{ req.start_date }} to {{ req.end_date }} - {{ req.status }}</li>
-    {% endfor %}
-</ul>
+
+<table>
+    <thead>
+        <tr>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Reason</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.start_date }}</td>
+            <td>{{ request.end_date }}</td>
+            <td>{{ request.reason }}</td>
+            <td>
+                {% if request.status == 'P' %} Pending
+                {% elif request.status == 'A' %} Approved
+                {% elif request.status == 'D' %} Denied
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No requests found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

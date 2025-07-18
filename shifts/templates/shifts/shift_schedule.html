@@ -1,0 +1,30 @@
+{% extends 'shifts/base.html' %}
+
+{% block content %}
+<h2>All Users' Shift Schedule</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for shift in shifts %}
+        <tr>
+            <td>{{ shift.user.username }}</td>
+            <td>{{ shift.date }}</td>
+            <td>{{ shift.start_time }}</td>
+            <td>{{ shift.end_time }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No shifts scheduled.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

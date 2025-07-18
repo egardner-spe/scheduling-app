@@ -1,0 +1,9 @@
+<form action="{% url 'approve_pickup_request' request.id %}" method="post">
+  {% csrf_token %}
+  <button type="submit">Approve</button>
+</form>
+
+<form action="{% url 'deny_pickup_request' request.id %}" method="post" style="display:inline;">
+  {% csrf_token %}
+  <button type="submit">Deny</button>
+</form>

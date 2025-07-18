@@ -1,0 +1,17 @@
+{% extends 'shifts/base.html' %}
+{% block content %}
+  <h2>Drop a Shift</h2>
+  <ul>
+    {% for shift in shifts %}
+      <li>
+        {{ shift.date }} at {{ shift.time }}
+        <form action="{% url 'drop_shift' shift.id %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Drop</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No assigned shifts found.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'shifts/base.html' %}
+{% block content %}
+  <h2>Approve Shift Pickup Requests</h2>
+  <ul>
+    {% for req in requests %}
+      <li>
+        {{ req.shift.date }} | {{ req.shift.start_time }} - {{ req.shift.end_time }} <br>
+        Requested by: {{ req.requested_by.username }}
+        <form method="post" action="{% url 'approve_single_pickup' req.id %}">
+          {% csrf_token %}
+          <button type="submit">Approve</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No pickup requests awaiting approval.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

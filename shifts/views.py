@@ -1,45 +1,154 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import now
-from .models import TimeOffRequest, Shift, ShiftPool
-from .forms import TimeOffRequestForm
+from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
+from .forms import TimeOffRequestForm, RegisterForm, ShiftPickupRequestForm, AvailabilityForm
+from django.contrib.auth.decorators import user_passes_test
 
+def is_manager(user):
+    return user.is_staff
+
+@user_passes_test(is_manager)
+def view_shift_schedule(request):
+    """Manager‑only view: list every user’s shifts in date order."""
+    shifts = (
+        Shift.objects
+        .select_related("user")
+        .order_by("date", "start_time", "user__username")
+    )
+    return render(request, "shifts/shift_schedule.html", {"shifts": shifts})
+
+def is_manager(user):
+    return user.is_staff
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def home(request):
+    shifts = Shift.objects.filter(user=request.user)
+    return render(request, 'shifts/home.html', {'shifts': shifts})
 
 @login_required
 def request_time_off(request):
-    form = TimeOffRequestForm(request.POST or None)
-    if form.is_valid():
-        time_off = form.save(commit=False)
-        time_off.employee = request.user
-        time_off.save()
-        return redirect('time_off_list')
+    if request.method == 'POST':
+        form = TimeOffRequestForm(request.POST)
+        if form.is_valid():
+            time_off = form.save(commit=False)
+            time_off.user = request.user
+            time_off.save()
+            return redirect('home')
+    else:
+        form = TimeOffRequestForm()
     return render(request, 'shifts/request_time_off.html', {'form': form})
-
 
 @login_required
 def time_off_list(request):
-    requests = TimeOffRequest.objects.filter(employee=request.user)
+    requests = TimeOffRequest.objects.filter(user=request.user)
     return render(request, 'shifts/time_off_list.html', {'requests': requests})
 
-
-@user_passes_test(lambda u: u.is_staff)
-def review_time_off(request, request_id, action):
-    req = get_object_or_404(TimeOffRequest, id=request_id)
-    if action == 'approve':
-        req.status = 'APPROVED'
-    elif action == 'deny':
-        req.status = 'DENIED'
-    req.reviewed_by = request.user
-    req.reviewed_at = now()
-    req.save()
-    return redirect('admin_time_off_requests')
-
-
-@user_passes_test(lambda u: u.is_staff)
-def admin_time_off_requests(request):
+@user_passes_test(is_manager)
+def admin_time_off_list(request):
     requests = TimeOffRequest.objects.all()
     return render(request, 'shifts/admin_time_off_list.html', {'requests': requests})
 
+@user_passes_test(is_manager)
+def approve_time_off(request, request_id):
+    request_obj = get_object_or_404(TimeOffRequest, id=request_id)
+    request_obj.status = 'A'
+    request_obj.save()
+    return redirect('admin_time_off_list')
 
-def home(request):
-    return render(request, 'shifts/home.html')
+@user_passes_test(is_manager)
+def deny_time_off(request, request_id):
+    request_obj = get_object_or_404(TimeOffRequest, id=request_id)
+    request_obj.status = 'D'
+    request_obj.save()
+    return redirect('admin_time_off_list')
+
+@login_required
+def drop_shift(request, shift_id):
+    shift = get_object_or_404(Shift, id=shift_id, user=request.user)
+    shift.is_dropped = True
+    shift.user = None  # Unassign the shift
+    shift.save()
+    return redirect('home')
+
+@login_required
+def view_available_shifts(request):
+    available_shifts = Shift.objects.filter(is_dropped=True, user=None)
+    return render(request, 'shifts/available_shifts.html', {'available_shifts': available_shifts})
+
+@login_required
+def request_pickup_shift(request, shift_id):
+    shift = get_object_or_404(Shift, id=shift_id, is_dropped=True, user=None)
+
+    # Prevent duplicate requests
+    if ShiftPickupRequest.objects.filter(shift=shift, requested_by=request.user).exists():
+        return redirect('available_shifts')
+
+    if request.method == 'POST':
+        ShiftPickupRequest.objects.create(shift=shift, requested_by=request.user)
+        return redirect('home')
+
+    return render(request, 'shifts/request_pickup_form.html', {'shift': shift})
+
+@user_passes_test(is_manager)
+def approve_pickup_requests(request):
+    pending_requests = ShiftPickupRequest.objects.filter(approved=False)
+    return render(request, 'shifts/approve_shifts_pickup.html', {'requests': pending_requests})
+
+@user_passes_test(is_manager)
+def approve_single_pickup(request, request_id):
+    pickup_request = get_object_or_404(ShiftPickupRequest, id=request_id)
+    shift = pickup_request.shift
+    shift.user = pickup_request.requested_by
+    shift.is_dropped = False
+    shift.save()
+
+    pickup_request.approved = True
+    pickup_request.save()
+
+    return redirect('approve_pickup_requests')
+
+@user_passes_test(is_manager)
+def deny_pickup_request(request, request_id):
+    pickup_request = get_object_or_404(ShiftPickupRequest, id=request_id)
+    pickup_request.delete()
+    return redirect('approve_pickup_requests')
+
+@login_required
+def view_my_schedule(request):
+    shifts = Shift.objects.filter(user=request.user).order_by('date')
+    return render(request, 'shifts/my_schedule.html', {'shifts': shifts})
+
+@login_required
+def set_availability(request):
+    if request.method == 'POST':
+        form = AvailabilityForm(request.POST)
+        if form.is_valid():
+            availability = form.save(commit=False)
+            availability.user = request.user
+            availability.save()
+            return redirect('home')
+    else:
+        form = AvailabilityForm()
+    return render(request, 'shifts/set_availability.html', {'form': form})
+
+@user_passes_test(is_manager)
+def view_all_availabilities(request):
+    all_availability = Availability.objects.all().order_by('user')
+    return render(request, 'shifts/view_availabilities.html', {'availabilities': all_availability})
+
+@login_required
+def drop_shift_list(request):
+    shifts = Shift.objects.filter(user=request.user, is_dropped=False)
+    return render(request, 'shifts/drop_shift_page.html', {'shifts': shifts})
