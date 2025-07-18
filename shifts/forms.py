@@ -37,5 +37,3 @@ class AvailabilityForm(forms.ModelForm):
             'end_time':     forms.Select(choices=TIME_CHOICES, attrs={'class':'form-select'}),
         }
 
-        }
-

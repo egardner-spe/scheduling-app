@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 
 STATUS_CHOICES = [
@@ -50,15 +51,24 @@ class ShiftPickupRequest(models.Model):
         return f"{self.requested_by.username} wants to pick up {self.shift}"
 
 class Availability(models.Model):
-    user = models.ForeignKey(User, …)
-    day  = models.CharField(…)
+    # link back to whatever User model you’re using
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='availabilities'
+    )
+    # limit it to one of the seven weekdays
+    day = models.CharField(
+        max_length=9,
+        choices=DAYS_OF_WEEK
+    )
     is_available = models.BooleanField(default=False)
-    start_time   = models.TimeField()
-    end_time     = models.TimeField()
-
+    # allow blank/null so you can leave off if not available
+    start_time = models.TimeField(blank=True, null=True)
+    end_time   = models.TimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.day}: {self.start_time} to {self.end_time}"
+        return f"{self.user.username} – {self.day}"
 
 class DroppedShift(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
