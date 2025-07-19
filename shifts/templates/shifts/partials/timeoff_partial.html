@@ -6,41 +6,43 @@
 </head>
 <body>
 
-<h2>My Time Off Requests</h2>
-
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>My Availability</h2>
-  <a href="{% url 'set_availability' %}" class="btn btn-primary">
-    Edit Availability
+  <h2>My Time Off Requests</h2>
+  <a href="{% url 'request_time_off' %}" class="btn btn-primary">
+    Submit New Request
   </a>
 </div>
 
 <table class="table">
   <thead>
   <tr>
-    <th>Day</th>
-    <th>Times</th>
+    <th>Start Date</th>
+    <th>End Date</th>
+    <th>Reason</th>
+    <th>Status</th>
   </tr>
   </thead>
   <tbody>
-  {% for avail in availabilities %}
+  {% for req in time_off %}
   <tr>
-    <td>{{ avail.day }}</td>
+    <td>{{ req.start_date }}</td>
+    <td>{{ req.end_date }}</td>
+    <td>{{ req.reason }}</td>
     <td>
-      {% if avail.is_available %}
-      {{ avail.start_time|time:"g:i A" }} – {{ avail.end_time|time:"g:i A" }}
-      {% else %}
-      Off
+      {% if req.status == 'P' %}Pending
+      {% elif req.status == 'A' %}Approved
+      {% elif req.status == 'D' %}Denied
       {% endif %}
     </td>
   </tr>
   {% empty %}
   <tr>
-    <td colspan="2">No availability set.</td>
+    <td colspan="4">No requests found.</td>
   </tr>
   {% endfor %}
   </tbody>
 </table>
+
 
 
 </body>
