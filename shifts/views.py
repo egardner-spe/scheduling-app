@@ -213,26 +213,27 @@ def view_shift_schedule(request):
 @login_required
 @user_passes_test(is_manager)
 def assign_shift(request, user_id, day):
-    # day will be something like "2025-07-14"
-    assignment_date = datetime.strptime(day, "%Y-%m-%d").date()
+    """
+    Display a tiny form (start/end time) and on POST, create a Shift for that user on that date.
+    """
+    target_user = get_object_or_404(User, pk=user_id)
+    the_date = parse_date(day)        # e.g. "2025-07-14" → date(2025,7,14)
 
-    # load your form, existing shift, etc...
-    # e.g.
-    user = get_object_or_404(User, pk=user_id)
     if request.method == "POST":
-        start = request.POST["start_time"]
-        end   = request.POST["end_time"]
-        Shift.objects.create(
-            user=user,
-            date=assignment_date,
-            start_time=start,
-            end_time=end,
-        )
-        return redirect("view_shift_schedule")
+        form = ShiftForm(request.POST)
+        if form.is_valid():
+            shift = form.save(commit=False)
+            shift.user = target_user
+            shift.date = the_date
+            shift.save()
+            return redirect("view_shift_schedule")
+    else:
+        form = ShiftForm()
 
     return render(request, "shifts/assign_shift.html", {
-        "partner": user,
-        "day": assignment_date,
+        "form": form,
+        "date": the_date,
+        "partner": target_user,
     })
 @login_required
 def request_pickup_shift(request, shift_id):
