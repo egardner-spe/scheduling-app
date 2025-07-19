@@ -148,6 +148,21 @@ def view_available_shifts(request):
         'available_shifts': Shift.objects.filter(is_dropped=True, user=None)
     })
 
+
+@user_passes_test(is_manager)
+def view_shift_schedule(request):
+    """
+    Manager-only: show every user's shifts in calendar order.
+    """
+    shifts = (
+        Shift.objects
+        .select_related('user')
+        .order_by('date', 'start_time', 'user__username')
+    )
+    return render(request, 'shifts/shift_schedule.html', {
+        'shifts': shifts
+    })
+
 @login_required
 def request_pickup_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id, is_dropped=True, user=None)
