@@ -42,5 +42,6 @@ urlpatterns = [
         views.assign_shift,
         name="assign_shift",
     ),
+    path('admin/schedule/assign/<int:user_id>/<str:day>/',  views.assign_shift, name='assign_shift'),
 
 ]
