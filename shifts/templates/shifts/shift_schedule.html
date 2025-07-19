@@ -1,44 +1,39 @@
 {% extends "shifts/base.html" %}
+{% load shifts_extras %}
+
 {% block content %}
 <div class="container py-4">
     <h2>All Users’ Shift Schedule</h2>
-    <table class="table table-bordered table-sm text-center">
+    <table class="table table-bordered table-sm">
         <thead class="table-light">
         <tr>
-            <th scope="col">Partner</th>
+            <th>Time</th>
             {% for d in week_days %}
-            <th scope="col">{{ d|date:"D M j" }}<br/>({{ d|date:"l" }})</th>
+            <th>{{ d|date:"D M j" }}<br/>{{ d|date:"l" }}</th>
             {% endfor %}
         </tr>
         </thead>
         <tbody>
         {% for user in partners %}
         <tr>
-            <th scope="row" class="text-start">{{ user.username }}</th>
+            <th class="text-start">{{ user.username }}</th>
             {% for d in week_days %}
-            {% with day=d|date:"l" %}
-            <td style="min-width:120px;vertical-align:top;">
-                {# 1) Existing shifts #}
-                {% for shift in shift_by_user_day.user.username|get_item:day %}
+            {% with day_name=d|date:"l" %}
+            {% with user_sched=shift_by_user_day|get_item:user.username %}
+            {% with shifts_for_day=user_sched|get_item:day_name %}
+            <td style="min-width:120px; vertical-align:top;">
+                {% if shifts_for_day %}
+                {% for shift in shifts_for_day %}
                 <div class="badge bg-success mb-1">
                     {{ shift.start_time|time:"g:i A" }}–{{ shift.end_time|time:"g:i A" }}
                 </div>
-                {% empty %}
-                {# 2) No shift: show availability if any #}
-                {% if avail_by_user_day.user.username|get_item:day %}
-                {% with A=avail_by_user_day.user.username|get_item:day %}
-                <small class="text-muted">
-                    Avail: {{ A.start_time|time:"g:i A" }}–{{ A.end_time|time:"g:i A" }}
-                </small><br/>
-                {% endwith %}
-                {% endif %}
-                {# 3) “Assign” button #}
-                <a href="{% url 'assign_shift' user.id day %}"
-                   class="btn btn-sm btn-outline-primary mt-1">
-                    Assign
-                </a>
                 {% endfor %}
+                {% else %}
+                <small class="text-muted">—</small>
+                {% endif %}
             </td>
+            {% endwith %}
+            {% endwith %}
             {% endwith %}
             {% endfor %}
         </tr>
