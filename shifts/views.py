@@ -18,6 +18,11 @@ from .forms   import (
 def is_manager(user):
     return user.is_staff
 
+shift_map = {
+    f"{s.user_id}-{s.date:%Y-%m-%d}": s
+    for s in Shift.objects.filter(date__range=(start, end))
+}
+
 # -----------------------------
 # Dashboard & Registration
 # -----------------------------

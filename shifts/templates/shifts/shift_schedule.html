@@ -1,10 +1,11 @@
-{% extends "shifts/base.html" %}
-{% load shifts_extras %}
+{% extends 'shifts/base.html' %}
+
 {% block content %}
 <div class="container py-4">
-    <h2>All Users’ Shift Schedule</h2>
+    <h2 class="mb-3">All Users’ Shift Schedule</h2>
 
-    <div class="mb-3">
+    <!-- Week navigation -->
+    <div class="mb-4">
         <a href="?start={{ prev_week|date:"Y-m-d" }}" class="btn btn-outline-secondary">&larr; Prev</a>
         <a href="?start={{ next_week|date:"Y-m-d" }}" class="btn btn-outline-secondary">Next &rarr;</a>
     </div>
@@ -12,7 +13,7 @@
     <table class="table table-bordered table-sm text-center">
         <thead class="table-light">
         <tr>
-            <th>Time</th>
+            <th>Partner</th>
             {% for day in week_days %}
             <th>
                 {{ day|date:"D M j" }}<br>
@@ -24,26 +25,28 @@
         <tbody>
         {% for user in partners %}
         <tr>
-            <th class="text-start">{{ user.username }}</th>
+            <th class="text-start align-middle">{{ user.username }}</th>
 
             {% for day in week_days %}
-            <td style="min-width:140px; vertical-align:top;">
-                {% with key=(user.id|stringformat:"s")|add:"-"|add:day|date:"Y-m-d" %}
-                {% if shift_map.user.id,day %}
-                {# existing shift #}
-                {% with s=shift_map.user.id,day %}
-                <span class="badge bg-success">
-                    {{ s.start_time|time:"g:i A" }}–{{ s.end_time|time:"g:i A" }}
+            <td style="vertical-align: top; min-width:140px;">
+                {# build a key like "5-2025-07-14" #}
+                {% with key=user.id|stringformat:"s"|add:"-"|add:day|date:"Y-m-d" %}
+
+                {% if shift_map.key %}
+                {% with shift=shift_map.key %}
+                <span class="badge bg-success mb-1">
+                    {{ shift.start_time|time:"g:i A" }}–{{ shift.end_time|time:"g:i A" }}
                   </span><br>
-                <a href="{% url 'edit_shift' s.id %}" class="btn btn-sm btn-link">✎</a>
+                <a href="{% url 'edit_shift' shift.id %}"
+                   class="btn btn-sm btn-link">✎</a>
                 {% endwith %}
                 {% else %}
-                {# assignment button triggers a modal or standalone page #}
                 <a href="{% url 'assign_shift' user.id day|date:"Y-m-d" %}"
-                class="btn btn-sm btn-outline-primary">
+                class="btn btn-sm btn-outline-primary mt-1">
                 + Assign
                 </a>
                 {% endif %}
+
                 {% endwith %}
             </td>
             {% endfor %}
