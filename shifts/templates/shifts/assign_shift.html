@@ -1,0 +1,19 @@
+{% extends "shifts/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2>Assign a Shift on {{ date }} to {{ partner.username }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="start_time" class="form-label">Start Time</label>
+      <input id="start_time" name="start_time" type="time" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="end_time" class="form-label">End Time</label>
+      <input id="end_time" name="end_time" type="time" class="form-control" required>
+    </div>
+    <button class="btn btn-primary">Create Shift</button>
+    <a href="{% url 'view_shift_schedule' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
