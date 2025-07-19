@@ -1,18 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import datetime, timedelta
-from django.contrib.auth    import login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.forms           import formset_factory
-from django.utils           import timezone
-from django.http            import JsonResponse
+from django.http import JsonResponse
+from django.forms import formset_factory
+from django.utils import timezone
 
-from .models  import Shift, TimeOffRequest, ShiftPickupRequest, Availability
-from .forms   import (
+from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
+from .forms  import (
     TimeOffRequestForm,
     RegisterForm,
     ShiftPickupRequestForm,
-    AvailabilityForm
+    AvailabilityForm,
 )
 
 def is_manager(user):
@@ -130,6 +129,21 @@ def deny_time_off(request, request_id):
     tor.status = 'D'
     tor.save()
     return redirect('admin_time_off_list')
+
+@login_required
+@user_passes_test(is_manager)
+def edit_shift(request, shift_id):
+    shift = get_object_or_404(Shift, id=shift_id)
+    if request.method == 'POST':
+        # pull from the POST—these must match your form field names
+        shift.start_time = request.POST['start_time']
+        shift.end_time   = request.POST['end_time']
+        shift.save()
+        return redirect('view_shift_schedule')
+    return render(request, 'shifts/edit_shift.html', {
+        'shift': shift,
+        'time_choices': TIME_CHOICES,
+    })
 
 
 # -----------------------------
