@@ -19,37 +19,40 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">Shiftwise</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                        {% if user.is_staff %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'approve_shifts_pickup' %}">Approve Pickups</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'admin_time_off_list' %}">Approve Time Off</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'view_shift_schedule' %}">All Schedules</a></li>
-                        {% endif %}
-                        <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
-                    {% endif %}
-                </ul>
-                {% if user.is_authenticated %}
-                    <span class="navbar-text text-muted">
-                        Hello, {{ user.username }}!
-                    </span>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">Shiftwise</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
-    <div class="container">
+                {% if user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                {% if user.is_staff %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'approve_shifts_pickup' %}">Approve Pickups</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_time_off_list' %}">Approve Time Off</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'view_shift_schedule' %}">All Schedules</a></li>
+                {% endif %}
+                <li class="nav-item">
+                    <form method="post" action="{% url 'logout' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn nav-link px-2">Logout</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container">
         {% block content %}
         {% endblock %}
     </div>
