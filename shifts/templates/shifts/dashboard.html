@@ -40,25 +40,21 @@
     </div>
 </div>
 
+<div id="calendar"></div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        let calendarEl = document.getElementById('calendar');
-        let calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridWeek',
-            headerToolbar: {
-                left:   'prev,next today',
-                center: 'title',
-                right:  ''
-            },
-            allDaySlot: false,
-            slotMinTime: '06:00:00',  // Starbucks style starts early
-            slotMaxTime: '22:00:00',
-            nowIndicator: true,
-            events: '{% url "api_shifts" %}',
-            locale: 'en',
-            height: 600
-        });
+        let calendar = new FullCalendar.Calendar(
+            document.getElementById('calendar'),
+            {
+                initialView: 'dayGridWeek',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+                events: '{% url "api_shifts" %}',
+                height: 400,
+            }
+        );
         calendar.render();
     });
 </script>
+
 {% endblock %}
