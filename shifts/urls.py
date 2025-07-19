@@ -2,9 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Authentication & Home
+    # Authentication & Dashboard
     path('', views.dashboard, name='dashboard'),
     path('register/', views.register, name='register'),
+    path('api/shifts/', views.api_shifts, name='api_shifts'),
+
 
     # Time Off Requests
     path('request-time-off/', views.request_time_off, name='request_time_off'),

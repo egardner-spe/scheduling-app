@@ -3,6 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
+from django.http import JsonResponse
 from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
 from .forms import TimeOffRequestForm, RegisterForm, ShiftPickupRequestForm, AvailabilityForm
 from django.contrib.auth.decorators import user_passes_test
@@ -28,6 +29,7 @@ def dashboard(request):
         'available_shifts': available_shifts,
     })
 
+
 @user_passes_test(is_manager)
 def view_shift_schedule(request):
     """Manager‑only view: list every user’s shifts in date order."""
@@ -47,15 +49,27 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
     else:
         form = RegisterForm()
     return render(request, 'registration/register.html', {'form': form})
 
 @login_required
-def home(request):
+def dashboard(request):
     shifts = Shift.objects.filter(user=request.user)
-    return render(request, 'shifts/home.html', {'shifts': shifts})
+    return render(request, 'shifts/dashboard.html', {'shifts': shifts})
+
+@login_required
+def api_shifts(request):
+    # Build a list of your user’s shifts in FullCalendar’s event format
+    data = []
+    for s in Shift.objects.filter(user=request.user):
+        data.append({
+            'title': f"{s.start_time.strftime('%-I:%M')}–{s.end_time.strftime('%-I:%M')}",
+            'start': s.date.isoformat() + f"T{s.start_time}",
+            'end':   s.date.isoformat() + f"T{s.end_time}",
+        })
+    return JsonResponse(data, safe=False)
 
 @login_required
 def request_time_off(request):
@@ -65,7 +79,7 @@ def request_time_off(request):
             time_off = form.save(commit=False)
             time_off.user = request.user
             time_off.save()
-            return redirect('home')
+            return redirect('dashboard')
     else:
         form = TimeOffRequestForm()
     return render(request, 'shifts/request_time_off.html', {'form': form})
@@ -100,7 +114,7 @@ def drop_shift(request, shift_id):
     shift.is_dropped = True
     shift.user = None  # Unassign the shift
     shift.save()
-    return redirect('home')
+    return redirect('dashboard')
 
 @login_required
 def view_available_shifts(request):
@@ -117,7 +131,7 @@ def request_pickup_shift(request, shift_id):
 
     if request.method == 'POST':
         ShiftPickupRequest.objects.create(shift=shift, requested_by=request.user)
-        return redirect('home')
+        return redirect('dashboard')
 
     return render(request, 'shifts/request_pickup_form.html', {'shift': shift})
 
@@ -175,7 +189,7 @@ def set_availability(request):
                 avail.user = request.user
                 avail.day  = day
                 avail.save()
-            return redirect('home')
+            return redirect('dashboard')
     else:
         # On GET: create seven forms, each with its `day` pre-set
         initial_data = [{'day': d} for d in DAYS]
