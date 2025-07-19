@@ -151,20 +151,43 @@ def view_available_shifts(request):
     })
 
 
+@login_required
 @user_passes_test(is_manager)
 def view_shift_schedule(request):
-    """
-    Manager-only: show every user's shifts in calendar order.
-    """
-    shifts = (
-        Shift.objects
-        .select_related('user')
-        .order_by('date', 'start_time', 'user__username')
-    )
-    return render(request, 'shifts/shift_schedule.html', {
-        'shifts': shifts
-    })
+    # 1) Build this week’s dates (Sunday→Saturday)
+    today = datetime.date.today()
+    start = today - datetime.timedelta(days=today.weekday()+1)  # last Sunday
+    week_days = [(start + datetime.timedelta(days=i)) for i in range(7)]
 
+    # 2) Get all partners
+    partners = User.objects.filter(is_staff=False).order_by('username')
+
+    # 3) Preload availabilities & shifts
+    avails = Availability.objects.filter(user__in=partners, day__in=[d.strftime('%A') for d in week_days])
+    shifts = Shift.objects.select_related('user').filter(date__in=week_days)
+
+    # 4) Index them for fast lookup
+    avail_by_user_day = {
+        user.username: {d.strftime('%A'): None for d in week_days}
+        for user in partners
+    }
+    for a in avails:
+        avail_by_user_day[a.user.username][a.day] = a
+
+    shift_by_user_day = {
+        user.username: {d.strftime('%A'): [] for d in week_days}
+        for user in partners
+    }
+    for s in shifts:
+        day_name = s.date.strftime('%A')
+        shift_by_user_day[s.user.username][day_name].append(s)
+
+    return render(request, 'shifts/shift_schedule.html', {
+        'week_days': week_days,
+        'partners': partners,
+        'avail_by_user_day': avail_by_user_day,
+        'shift_by_user_day': shift_by_user_day,
+    })
 @login_required
 def request_pickup_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id, is_dropped=True, user=None)

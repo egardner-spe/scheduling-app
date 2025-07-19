@@ -1,37 +1,45 @@
-{% extends 'shifts/base.html' %}
-{% load shifts_extras %}
-
+{% extends "shifts/base.html" %}
 {% block content %}
 <div class="container py-4">
     <h2>All Users’ Shift Schedule</h2>
-
-    <table class="table table-bordered table-sm">
+    <table class="table table-bordered table-sm text-center">
         <thead class="table-light">
         <tr>
-            <th scope="col">Time</th>
-            {% for day in week_days %}
-            <th scope="col">{{ day }}</th>
+            <th scope="col">Partner</th>
+            {% for d in week_days %}
+            <th scope="col">{{ d|date:"D M j" }}<br/>({{ d|date:"l" }})</th>
             {% endfor %}
         </tr>
         </thead>
         <tbody>
-        {% for hour in hours %}
+        {% for user in partners %}
         <tr>
-            <th scope="row">{{ hour }}:00</th>
-            {% for day in week_days %}
-            <td style="min-width: 120px; vertical-align: top;">
-                {# grab the list for this day, then this hour #}
-                {% with shifts_by_day_hour|get_item:day as day_dict %}
-                {% with day_dict|get_item:hour as cell_shifts %}
-                {% for shift in cell_shifts %}
+            <th scope="row" class="text-start">{{ user.username }}</th>
+            {% for d in week_days %}
+            {% with day=d.strftime:"%A" %}
+            <td style="min-width:120px;vertical-align:top;">
+                {# 1) Existing shifts #}
+                {% for shift in shift_by_user_day.user.username|get_item:day %}
                 <div class="badge bg-success mb-1">
-                    {{ shift.user.username }}<br/>
-                    {{ shift.start_time|time:"g:i A" }} – {{ shift.end_time|time:"g:i A" }}
-                </div><br/>
+                    {{ shift.start_time|time:"g:i A" }}–{{ shift.end_time|time:"g:i A" }}
+                </div>
+                {% empty %}
+                {# 2) No shift: show availability if any #}
+                {% if avail_by_user_day.user.username|get_item:day %}
+                {% with A=avail_by_user_day.user.username|get_item:day %}
+                <small class="text-muted">
+                    Avail: {{ A.start_time|time:"g:i A" }}–{{ A.end_time|time:"g:i A" }}
+                </small><br/>
+                {% endwith %}
+                {% endif %}
+                {# 3) “Assign” button #}
+                <a href="{% url 'assign_shift' user.id day %}"
+                   class="btn btn-sm btn-outline-primary mt-1">
+                    Assign
+                </a>
                 {% endfor %}
-                {% endwith %}
-                {% endwith %}
             </td>
+            {% endwith %}
             {% endfor %}
         </tr>
         {% endfor %}
