@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import TimeOffRequest, ShiftPickupRequest, Availability
+from .forms import TIME_CHOICES #
 
 
 # Generate 30-minute slots from 00:00 to 23:30
@@ -28,12 +29,18 @@ class ShiftPickupRequestForm(forms.ModelForm):
         fields = ['shift']  # User is set in the view, not on the form
 
 class AvailabilityForm(forms.ModelForm):
+    # Override the default so they’re not required
+    available  = forms.BooleanField(required=False)
+    start_time = forms.ChoiceField(choices=TIME_CHOICES, required=False)
+    end_time   = forms.ChoiceField(choices=TIME_CHOICES, required=False)
+
     class Meta:
         model  = Availability
-        fields = ['day','is_available','start_time','end_time']
+        fields = ['day', 'available', 'start_time', 'end_time']
         widgets = {
-            'is_available': forms.CheckboxInput(attrs={'class':'form-check-input'}),
-            'start_time':   forms.Select(choices=TIME_CHOICES, attrs={'class':'form-select'}),
-            'end_time':     forms.Select(choices=TIME_CHOICES, attrs={'class':'form-select'}),
+            'day': forms.HiddenInput(),
+            'available': forms.CheckboxInput(attrs={'class':'form-check-input'}),
+            'start_time': forms.Select(attrs={'class':'form-select'}),
+            'end_time':   forms.Select(attrs={'class':'form-select'}),
         }
 
