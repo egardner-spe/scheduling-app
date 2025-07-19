@@ -12,14 +12,14 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">Shiftwise</a>
+            <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">Shiftwise</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'request_time_off' %}">Request Time Off</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'time_off_list' %}">My Time Off</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'available_shifts' %}">Available Shifts</a></li>
