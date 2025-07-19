@@ -1,55 +1,41 @@
+{% load shifts_extras %}
 {% extends 'shifts/base.html' %}
+
 {% block content %}
 <div class="container py-4">
     <h2>All Users’ Shift Schedule</h2>
-    <div id="calendar"></div>
+
+    <table class="table table-bordered table-sm">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">Time</th>
+            {% for day in week_days %}
+            <th scope="col">{{ day }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for hour in hours %}
+        <tr>
+            <th scope="row">{{ hour }}:00</th>
+            {% for day in week_days %}
+            <td style="min-width: 120px; vertical-align: top;">
+                {# grab the list for this day, then this hour #}
+                {% with shifts_by_day_hour|get_item:day as day_dict %}
+                {% with day_dict|get_item:hour as cell_shifts %}
+                {% for shift in cell_shifts %}
+                <div class="badge bg-success mb-1">
+                    {{ shift.user.username }}<br/>
+                    {{ shift.start_time|time:"g:i A" }} – {{ shift.end_time|time:"g:i A" }}
+                </div><br/>
+                {% endfor %}
+                {% endwith %}
+                {% endwith %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
-
-{# FullCalendar CSS & JS from CDN #}
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let calendarEl = document.getElementById('calendar');
-
-        let calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'timeGridWeek',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'timeGridDay,timeGridWeek,dayGridMonth'
-            },
-            // Fetch events from your existing shifts API
-            events: {
-                url: '{% url "api_shifts" %}',
-                method: 'GET',
-                extraParams: {
-                    // you can pass filters here if you want
-                },
-                failure: function() {
-                    alert('There was an error while fetching shifts.');
-                }
-            },
-            eventDidMount: function(info) {
-                // color-code by user (optional):
-                let colorMap = {
-                    'alice': '#1abc9c',
-                    'bob':   '#3498db',
-                    'carol': '#e74c3c'
-                    // …etc
-                };
-                info.el.style.backgroundColor = colorMap[info.event.extendedProps.username] || '#2ecc71';
-            },
-            eventTimeFormat: { // e.g. “2:30 PM”
-                hour: 'numeric',
-                minute: '2-digit',
-                meridiem: 'short'
-            },
-            height: 'auto'
-        });
-
-        calendar.render();
-    });
-</script>
 {% endblock %}
