@@ -16,7 +16,7 @@
         <tr>
             <th scope="row" class="text-start">{{ user.username }}</th>
             {% for d in week_days %}
-            {% with day=d.strftime:"%A" %}
+            {% with day=d|date:"l" %}
             <td style="min-width:120px;vertical-align:top;">
                 {# 1) Existing shifts #}
                 {% for shift in shift_by_user_day.user.username|get_item:day %}
