@@ -198,7 +198,6 @@ def set_availability(request):
         request.POST or None,
         initial=[{'day': d} for d in DAYS]
     )
-
     if request.method == 'POST' and formset.is_valid():
         for form, day in zip(formset.forms, DAYS):
             avail = form.save(commit=False)
@@ -206,10 +205,8 @@ def set_availability(request):
             avail.day  = day
             avail.save()
         return redirect('dashboard')
+    return render(request, 'shifts/set_availability.html', {'formset': formset})
 
-    return render(request, 'shifts/set_availability.html', {
-        'formset': formset
-    })
 
 @user_passes_test(is_manager)
 def view_all_availabilities(request):
