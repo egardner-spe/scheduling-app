@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import TimeOffRequest, ShiftPickupRequest, Availability
+from .models import TimeOffRequest, ShiftPickupRequest, Availability, Shift
 
 # ─── Time choices for availability slots ────────────────────────────────────
 HOURS = range(0, 24)
@@ -56,3 +56,9 @@ class AvailabilityForm(forms.ModelForm):
         model = Availability
         # note: no 'day' here!
         fields = ['is_available', 'start_time', 'end_time']
+
+# ─── ShiftForm ──────────────────────────────────────────────────────
+class ShiftForm(forms.ModelForm):
+    class Meta:
+        model = Shift
+        fields = ["start_time", "end_time"]
