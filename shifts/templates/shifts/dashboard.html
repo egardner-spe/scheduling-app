@@ -1,60 +1,119 @@
 {% extends 'shifts/base.html' %}
+
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-3">Dashboard</h2>
-    <ul class="nav nav-pills mb-3" id="dash-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="pill" href="#tab-schedule">My Schedule</a>
+
+    <ul class="nav nav-pills mb-3" id="dash-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button
+                    class="nav-link active"
+                    id="schedule-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#tab-schedule"
+                    type="button"
+                    role="tab"
+                    aria-controls="tab-schedule"
+                    aria-selected="true"
+            >My Schedule</button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="pill" href="#tab-timeoff">Time Off</a>
+        <li class="nav-item" role="presentation">
+            <button
+                    class="nav-link"
+                    id="timeoff-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#tab-timeoff"
+                    type="button"
+                    role="tab"
+                    aria-controls="tab-timeoff"
+                    aria-selected="false"
+            >Time Off</button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="pill" href="#tab-availability">Availability</a>
+        <li class="nav-item" role="presentation">
+            <button
+                    class="nav-link"
+                    id="availability-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#tab-availability"
+                    type="button"
+                    role="tab"
+                    aria-controls="tab-availability"
+                    aria-selected="false"
+            >Availability</button>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="pill" href="#tab-open">Open Shifts</a>
+        <li class="nav-item" role="presentation">
+            <button
+                    class="nav-link"
+                    id="open-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#tab-open"
+                    type="button"
+                    role="tab"
+                    aria-controls="tab-open"
+                    aria-selected="false"
+            >Open Shifts</button>
         </li>
     </ul>
 
     <div class="tab-content">
         <!-- Schedule Tab -->
-        <div class="tab-pane fade show active" id="tab-schedule">
+        <div
+                class="tab-pane fade show active"
+                id="tab-schedule"
+                role="tabpanel"
+                aria-labelledby="schedule-tab"
+        >
             {% include 'shifts/partials/home_partial.html' %}
         </div>
 
         <!-- Time Off Tab -->
-        <div class="tab-pane fade" id="tab-timeoff">
+        <div
+                class="tab-pane fade"
+                id="tab-timeoff"
+                role="tabpanel"
+                aria-labelledby="timeoff-tab"
+        >
             {% include 'shifts/partials/timeoff_partial.html' %}
         </div>
 
         <!-- Availability Tab -->
-        <div class="tab-pane fade" id="tab-availability">
+        <div
+                class="tab-pane fade"
+                id="tab-availability"
+                role="tabpanel"
+                aria-labelledby="availability-tab"
+        >
             {% include 'shifts/partials/availability_partial.html' %}
         </div>
 
-        <!-- Available Shifts Tab -->
-        <div class="tab-pane fade" id="tab-open">
+        <!-- Open Shifts Tab -->
+        <div
+                class="tab-pane fade"
+                id="tab-open"
+                role="tabpanel"
+                aria-labelledby="open-tab"
+        >
             {% include 'shifts/partials/available_shifts_partial.html' %}
         </div>
     </div>
 </div>
 
-<div id="calendar"></div>
+<div id="calendar" class="container mt-4"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        let calendar = new FullCalendar.Calendar(
-            document.getElementById('calendar'),
-            {
-                initialView: 'dayGridWeek',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
-                events: '{% url "api_shifts" %}',
-                height: 400,
-            }
-        );
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridWeek',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            events: '{% url "api_shifts" %}',
+            height: 400
+        });
         calendar.render();
     });
 </script>
-
 {% endblock %}
