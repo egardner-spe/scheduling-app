@@ -37,10 +37,6 @@ class ShiftPickupRequestForm(forms.ModelForm):
 
 # ─── Availability Form ──────────────────────────────────────────────────────
 class AvailabilityForm(forms.ModelForm):
-    # Hide day as a plain CharField so Django won't enforce the model's choices here
-    day = forms.CharField(widget=forms.HiddenInput())
-
-    # These stay the same
     is_available = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
@@ -58,8 +54,5 @@ class AvailabilityForm(forms.ModelForm):
 
     class Meta:
         model = Availability
-        fields = ['day', 'is_available', 'start_time', 'end_time']
-        widgets = {
-            # day is now handled by our override, so no widget here
-        }
-
+        # note: no 'day' here!
+        fields = ['is_available', 'start_time', 'end_time']
