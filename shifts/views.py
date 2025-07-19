@@ -160,46 +160,45 @@ def view_available_shifts(request):
 @login_required
 @user_passes_test(is_manager)
 def view_shift_schedule(request):
-    # 1) Figure out your “start” date (YYYY-MM-DD in querystring? else today’s date)
+    # 1) read “start” from the query-string, else default to today
     start_str = request.GET.get('start')
     if start_str:
         try:
-            start = datetime.strptime(start_str, '%Y-%m-%d').date()
+            start = datetime.strptime(start_str, "%Y-%m-%d").date()
         except ValueError:
             start = timezone.localdate()
     else:
         start = timezone.localdate()
 
-    # 2) Move back to Monday of that week (so your calendar always shows Mon–Sun)
-    #    weekday(): Monday=0 … Sunday=6
+    # 2) snap back to Monday of that week
     start = start - timedelta(days=start.weekday())
-    end = start + timedelta(days=6)
+    end   = start + timedelta(days=6)
 
-    # 3) Build a flat list of the 7 days
+    # 3) build your 7-day list
     week_days = [start + timedelta(days=i) for i in range(7)]
 
-    # 4) Fetch all shifts in that window
+    # 4) pull all the shifts in that window
     shifts = Shift.objects.filter(date__range=(start, end))
 
-    # 5) Build a lookup dict keyed by "userID-YYYY-MM-DD" → shift instance
+    # 5) key them by “userID–YYYY-MM-DD” so the template can quick-lookup
     shift_map = {
         f"{s.user_id}-{s.date.isoformat()}": s
         for s in shifts
     }
 
-    # 6) Who to show on the grid (all non-staff partners)
-    partners = User.objects.filter(is_staff=False).order_by('username')
+    # 6) who shows up on this grid (all non-staff users)
+    partners = User.objects.filter(is_staff=False).order_by("username")
 
-    # 7) Prev/Next week links
+    # 7) for prev/next links
     prev_week = start - timedelta(days=7)
     next_week = start + timedelta(days=7)
 
-    return render(request, 'shifts/shift_schedule.html', {
-        'week_days':    week_days,
-        'shift_map':    shift_map,
-        'partners':     partners,
-        'prev_week':    prev_week,
-        'next_week':    next_week,
+    return render(request, "shifts/shift_schedule.html", {
+        "week_days": week_days,
+        "shift_map": shift_map,
+        "partners": partners,
+        "prev_week": prev_week,
+        "next_week": next_week,
     })
 
 @login_required
