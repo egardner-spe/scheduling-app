@@ -156,42 +156,50 @@ def view_available_shifts(request):
     })
 
 
+
 @login_required
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(is_manager)
 def view_shift_schedule(request):
-    # 1. parse start-of-week
-    start_str = request.GET.get("start")
+    # 1) Figure out your “start” date (YYYY-MM-DD in querystring? else today’s date)
+    start_str = request.GET.get('start')
     if start_str:
-        week_start = datetime.fromisoformat(start_str).date()
+        try:
+            start = datetime.strptime(start_str, '%Y-%m-%d').date()
+        except ValueError:
+            start = timezone.localdate()
     else:
-        today = timezone.localdate()
-        # assuming week starts Sunday
-        week_start = today - timedelta(days=today.weekday()+1 % 7)
+        start = timezone.localdate()
 
-    week_days = [week_start + timedelta(days=i) for i in range(7)]
+    # 2) Move back to Monday of that week (so your calendar always shows Mon–Sun)
+    #    weekday(): Monday=0 … Sunday=6
+    start = start - timedelta(days=start.weekday())
+    end = start + timedelta(days=6)
 
-    # 2. load users
-    partners = User.objects.filter(is_staff=False).order_by('username')
+    # 3) Build a flat list of the 7 days
+    week_days = [start + timedelta(days=i) for i in range(7)]
 
-    # 3. fetch all Shifts in that date-range
-    week_shifts = (
-        Shift.objects
-        .filter(date__gte=week_start, date__lte=week_start + timedelta(days=6))
-        .select_related('user')
-    )
-    # 4. build lookup dict {(user_id, date): shift}
+    # 4) Fetch all shifts in that window
+    shifts = Shift.objects.filter(date__range=(start, end))
+
+    # 5) Build a lookup dict keyed by "userID-YYYY-MM-DD" → shift instance
     shift_map = {
-        (s.user_id, s.date): s
-        for s in week_shifts
+        f"{s.user_id}-{s.date.isoformat()}": s
+        for s in shifts
     }
 
-    # now render
-    return render(request, "shifts/shift_schedule.html", {
-        "week_days": week_days,
-        "partners": partners,
-        "shift_map": shift_map,
-        "prev_week": week_start - timedelta(days=7),
-        "next_week": week_start + timedelta(days=7),
+    # 6) Who to show on the grid (all non-staff partners)
+    partners = User.objects.filter(is_staff=False).order_by('username')
+
+    # 7) Prev/Next week links
+    prev_week = start - timedelta(days=7)
+    next_week = start + timedelta(days=7)
+
+    return render(request, 'shifts/shift_schedule.html', {
+        'week_days':    week_days,
+        'shift_map':    shift_map,
+        'partners':     partners,
+        'prev_week':    prev_week,
+        'next_week':    next_week,
     })
 
 @login_required
