@@ -193,25 +193,28 @@ AvailabilityFormSet = formset_factory(AvailabilityForm, extra=0)
 
 @login_required
 def set_availability(request):
-    DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-    # Only the 7 initial forms—no extra blank ones
+    DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     formset = AvailabilityFormSet(
         request.POST or None,
         initial=[{'day': d} for d in DAYS]
     )
 
-    if request.method == 'POST' and formset.is_valid():
-        for form, day in zip(formset.forms, DAYS):
-            avail = form.save(commit=False)
-            avail.user = request.user
-            avail.day  = day
-            avail.save()
-        return redirect('dashboard')
+    if request.method == 'POST':
+        if formset.is_valid():
+            for form, day in zip(formset.forms, DAYS):
+                avail = form.save(commit=False)
+                avail.user = request.user
+                avail.day  = day
+                avail.save()
+            return redirect('dashboard')
+        else:
+            # THIS WILL SHOW UP IN YOUR TERMINAL when you click Save
+            print("AvailabilityFormSet errors:", formset.errors)
 
     return render(request, 'shifts/set_availability.html', {
         'formset': formset
     })
+
 
 
 
