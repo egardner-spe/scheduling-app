@@ -3,9 +3,10 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
+from django.urls import reverse
 from django.forms import formset_factory
 from django.utils import timezone
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date, parse_datetime
 
 from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
 from .forms  import (
@@ -13,6 +14,7 @@ from .forms  import (
     RegisterForm,
     ShiftPickupRequestForm,
     AvailabilityForm,
+    ShiftForm
 )
 
 def is_manager(user):
@@ -75,16 +77,43 @@ def register(request):
 # JSON API for FullCalendar
 # -----------------------------
 
+@login_required
 def api_shifts(request):
-    start = request.GET.get("start")  # FullCalendar passes ISO dates
-    end   = request.GET.get("end")
-    qs = Shift.objects.filter(date__range=(start, end))
-    events = [{
-        "id": s.id,
-        "title": s.user.username,
-        "start": f"{s.date}T{s.start_time}",
-        "end":   f"{s.date}T{s.end_time}",
-    } for s in qs]
+    """
+    JSON endpoint for FullCalendar’s `events:` option.
+    Expects `?start=…&end=…` ISO8601 datetimes, returns a list of {title, start, end, url}.
+    """
+    # 1) parse the incoming start/end
+    start_iso = request.GET.get('start')
+    end_iso   = request.GET.get('end')
+    if not start_iso or not end_iso:
+        return JsonResponse([], safe=False)
+
+    start_dt = parse_datetime(start_iso)
+    end_dt   = parse_datetime(end_iso)
+    if start_dt is None or end_dt is None:
+        return JsonResponse([], safe=False)
+
+    # 2) convert to dates, or keep datetimes if you ever schedule across midnight
+    start_date = start_dt.date()
+    end_date   = end_dt.date()
+
+    # 3) pull only the shifts in that window
+    qs = Shift.objects.filter(date__gte=start_date, date__lte=end_date)
+
+    # 4) serialize
+    events = []
+    for s in qs:
+        # combine date + time into an ISO8601 timestamp
+        dt_start = datetime.datetime.combine(s.date, s.start_time)
+        dt_end   = datetime.datetime.combine(s.date, s.end_time)
+        events.append({
+            "title": f"{s.start_time.strftime('%-I:%M')}–{s.end_time.strftime('%-I:%M')}",
+            "start": dt_start.isoformat(),
+            "end":   dt_end.isoformat(),
+            "url":   reverse("edit_shift", args=[s.id]),
+        })
+
     return JsonResponse(events, safe=False)
 
 
