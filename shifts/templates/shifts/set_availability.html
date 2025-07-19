@@ -1,3 +1,4 @@
+{# shifts/templates/shifts/set_availability.html #}
 {% extends 'shifts/base.html' %}
 {% block content %}
 <div class="container mt-4">
@@ -5,6 +6,7 @@
 
     <form method="post">
         {% csrf_token %}
+        {{ formset.management_form }}
 
         <table class="table">
             <thead>
@@ -33,16 +35,10 @@
         <button class="btn btn-primary" type="submit">Save Availability</button>
     </form>
 
-    {# DEBUG: show any form-level errors #}
+    {# Debugging errors if any #}
     {% if formset.non_form_errors %}
     <div class="alert alert-danger mt-3">
         {{ formset.non_form_errors }}
     </div>
     {% endif %}
-    {% for form in formset %}
-    {% if form.errors %}
-    <pre class="text-danger">{{ form.errors }}</pre>
-    {% endif %}
-    {% endfor %}
-</div>
-{% endblock %}
+    {% endblock %}
