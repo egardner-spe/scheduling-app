@@ -37,11 +37,6 @@ urlpatterns = [
     path('admin/schedule/',               views.view_shift_schedule, name='view_shift_schedule'),
     path('admin/schedule/assign/<int:user_id>/<date:day>/', views.assign_shift, name='assign_shift'),
     path('admin/schedule/edit/<int:shift_id>/',      views.edit_shift,   name='edit_shift'),
-    path(
-        "admin/schedule/assign/<int:user_id>/<date:day>/",
-        views.assign_shift,
-        name="assign_shift",
-    ),
     path('admin/schedule/assign/<int:user_id>/<str:day>/',  views.assign_shift, name='assign_shift'),
 
 ]
