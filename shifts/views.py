@@ -189,15 +189,18 @@ def deny_pickup_request(request, request_id):
 # Availability Formset (7 days)
 # -----------------------------
 
-AvailabilityFormSet = formset_factory(AvailabilityForm, extra=7)
+AvailabilityFormSet = formset_factory(AvailabilityForm, extra=0)
 
 @login_required
 def set_availability(request):
-    DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+    DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    # Only the 7 initial forms—no extra blank ones
     formset = AvailabilityFormSet(
         request.POST or None,
         initial=[{'day': d} for d in DAYS]
     )
+
     if request.method == 'POST' and formset.is_valid():
         for form, day in zip(formset.forms, DAYS):
             avail = form.save(commit=False)
@@ -205,7 +208,11 @@ def set_availability(request):
             avail.day  = day
             avail.save()
         return redirect('dashboard')
-    return render(request, 'shifts/set_availability.html', {'formset': formset})
+
+    return render(request, 'shifts/set_availability.html', {
+        'formset': formset
+    })
+
 
 
 @user_passes_test(is_manager)
