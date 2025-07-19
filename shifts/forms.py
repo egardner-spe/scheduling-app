@@ -37,7 +37,10 @@ class ShiftPickupRequestForm(forms.ModelForm):
 
 # ─── Availability Form ──────────────────────────────────────────────────────
 class AvailabilityForm(forms.ModelForm):
-    # Override these so they’re optional in the formset
+    # Hide day as a plain CharField so Django won't enforce the model's choices here
+    day = forms.CharField(widget=forms.HiddenInput())
+
+    # These stay the same
     is_available = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
@@ -55,9 +58,8 @@ class AvailabilityForm(forms.ModelForm):
 
     class Meta:
         model = Availability
-        # order here must match how you render the row: day, is_available, start_time, end_time
         fields = ['day', 'is_available', 'start_time', 'end_time']
         widgets = {
-            # day is managed by your view & hidden in the form
-            'day': forms.HiddenInput(),
+            # day is now handled by our override, so no widget here
         }
+
