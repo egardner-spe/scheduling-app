@@ -9,21 +9,11 @@
         {{ formset.management_form }}
 
         <table class="table">
-            <thead>
-            <tr>
-                <th>Day</th>
-                <th>Available</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-            </tr>
-            </thead>
+            <thead>…</thead>
             <tbody>
             {% for form in formset %}
             <tr>
-                <td>
-                    {{ form.initial.day }}
-                    {{ form.day.as_hidden }}
-                </td>
+                <td>{{ form.initial.day }}</td>
                 <td>{{ form.is_available }}</td>
                 <td>{{ form.start_time }}</td>
                 <td>{{ form.end_time }}</td>
