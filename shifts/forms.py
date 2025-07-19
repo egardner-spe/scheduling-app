@@ -2,16 +2,18 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import TimeOffRequest, ShiftPickupRequest, Availability
-from .forms import TIME_CHOICES #
 
-
-# Generate 30-minute slots from 00:00 to 23:30
-HOURS = range(0, 24)
-MINS = (0, 30)
+# Define this here, not via import
+HOURS = range(0,24)
+MINS = (0,30)
 TIME_CHOICES = [
-    (f"{h:02d}:{m:02d}", f"{(h%12 or 12)}:{m:02d} {'AM' if h < 12 else 'PM'}")
+    (f"{h:02d}:{m:02d}", f"{(h%12 or 12)}:{m:02d} {'AM' if h<12 else 'PM'}")
     for h in HOURS for m in MINS
 ]
+
+class TimeOffRequestForm(forms.ModelForm):
+# …
+
 
 class RegisterForm(UserCreationForm):
     class Meta:
