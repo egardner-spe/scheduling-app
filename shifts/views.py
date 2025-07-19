@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth    import login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -152,41 +152,41 @@ def view_available_shifts(request):
 
 
 @login_required
-@user_passes_test(is_manager)
+@user_passes_test(lambda u: u.is_staff)
 def view_shift_schedule(request):
-    # 1) Build this week’s dates (Sunday→Saturday)
-    today = datetime.date.today()
-    start = today - datetime.timedelta(days=today.weekday()+1)  # last Sunday
-    week_days = [(start + datetime.timedelta(days=i)) for i in range(7)]
+    # 1. parse start-of-week
+    start_str = request.GET.get("start")
+    if start_str:
+        week_start = datetime.fromisoformat(start_str).date()
+    else:
+        today = timezone.localdate()
+        # assuming week starts Sunday
+        week_start = today - timedelta(days=today.weekday()+1 % 7)
 
-    # 2) Get all partners
+    week_days = [week_start + timedelta(days=i) for i in range(7)]
+
+    # 2. load users
     partners = User.objects.filter(is_staff=False).order_by('username')
 
-    # 3) Preload availabilities & shifts
-    avails = Availability.objects.filter(user__in=partners, day__in=[d.strftime('%A') for d in week_days])
-    shifts = Shift.objects.select_related('user').filter(date__in=week_days)
-
-    # 4) Index them for fast lookup
-    avail_by_user_day = {
-        user.username: {d.strftime('%A'): None for d in week_days}
-        for user in partners
+    # 3. fetch all Shifts in that date-range
+    week_shifts = (
+        Shift.objects
+        .filter(date__gte=week_start, date__lte=week_start + timedelta(days=6))
+        .select_related('user')
+    )
+    # 4. build lookup dict {(user_id, date): shift}
+    shift_map = {
+        (s.user_id, s.date): s
+        for s in week_shifts
     }
-    for a in avails:
-        avail_by_user_day[a.user.username][a.day] = a
 
-    shift_by_user_day = {
-        user.username: {d.strftime('%A'): [] for d in week_days}
-        for user in partners
-    }
-    for s in shifts:
-        day_name = s.date.strftime('%A')
-        shift_by_user_day[s.user.username][day_name].append(s)
-
-    return render(request, 'shifts/shift_schedule.html', {
-        'week_days': week_days,
-        'partners': partners,
-        'avail_by_user_day': avail_by_user_day,
-        'shift_by_user_day': shift_by_user_day,
+    # now render
+    return render(request, "shifts/shift_schedule.html", {
+        "week_days": week_days,
+        "partners": partners,
+        "shift_map": shift_map,
+        "prev_week": week_start - timedelta(days=7),
+        "next_week": week_start + timedelta(days=7),
     })
 @login_required
 def request_pickup_shift(request, shift_id):
