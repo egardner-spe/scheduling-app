@@ -60,7 +60,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             let calendarEl = document.getElementById('calendar');
             let calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek',
+                initialView: 'dayGridWeek',
+                views: {
+                    dayGridWeek: {
+                        titleFormat: { month: 'short', day: 'numeric' }, // “Jul 13” style
+                        dayHeaders: true
+                    }
+                }
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
