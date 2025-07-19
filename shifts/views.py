@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.forms import formset_factory
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 
 from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
 from .forms  import (
@@ -74,16 +75,17 @@ def register(request):
 # JSON API for FullCalendar
 # -----------------------------
 
-@login_required
 def api_shifts(request):
-    data = []
-    for s in Shift.objects.filter(user=request.user):
-        data.append({
-            'title': f"{s.start_time.strftime('%-I:%M')}–{s.end_time.strftime('%-I:%M')}",
-            'start': f"{s.date.isoformat()}T{s.start_time}",
-            'end':   f"{s.date.isoformat()}T{s.end_time}",
-        })
-    return JsonResponse(data, safe=False)
+    start = request.GET.get("start")  # FullCalendar passes ISO dates
+    end   = request.GET.get("end")
+    qs = Shift.objects.filter(date__range=(start, end))
+    events = [{
+        "id": s.id,
+        "title": s.user.username,
+        "start": f"{s.date}T{s.start_time}",
+        "end":   f"{s.date}T{s.end_time}",
+    } for s in qs]
+    return JsonResponse(events, safe=False)
 
 
 # -----------------------------
