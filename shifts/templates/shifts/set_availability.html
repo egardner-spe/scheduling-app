@@ -1,34 +1,33 @@
 {% extends 'shifts/base.html' %}
-{% include 'shifts/partials/availability_partial.html' %}
 {% block content %}
-<h2>Set Your Weekly Availability</h2>
-
-<form method="post">
-    {% csrf_token %}
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Day</th>
-            <th>Available</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for form in formset %}
-        <tr>
-            <td>
-                {{ form.initial.day }}
-                {{ form.day.as_hidden }}
-            </td>
-            <td>{{ form.available }}</td>
-            <td>{{ form.start_time }}</td>
-            <td>{{ form.end_time }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <button class="btn btn-primary" type="submit">Save Availability</button>
-</form>
+<div class="container mt-4">
+    <h2>Set Your Weekly Availability</h2>
+    <form method="post">
+        {% csrf_token %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Day</th>
+                <th>Available</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for form in formset %}
+            <tr>
+                <td>
+                    {{ form.initial.day }}
+                    {{ form.day.as_hidden }}
+                </td>
+                <td>{{ form.available }}</td>
+                <td>{{ form.start_time }}</td>
+                <td>{{ form.end_time }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn btn-primary" type="submit">Save Availability</button>
+    </form>
+</div>
 {% endblock %}
