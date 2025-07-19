@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+  <h2>Set Your Availability</h2>
+  <form method="post">
+  {% csrf_token %}
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Day</th>
+      <th>Available</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for form in formset %}
+    <tr>
+      <td>
+        {{ form.initial.day }}
+        {{ form.day.as_hidden }}
+      </td>
+      <td>{{ form.available }}</td>
+      <td>{{ form.start_time }}</td>
+      <td>{{ form.end_time }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></form></div>
+
+<button class="btn btn-primary" type="submit">Save Availability</button>
+
+</body>
+</html>

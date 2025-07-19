@@ -1,0 +1,42 @@
+{% extends 'shifts/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Dashboard</h2>
+    <ul class="nav nav-pills mb-3" id="dash-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="pill" href="#tab-schedule">My Schedule</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#tab-timeoff">Time Off</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#tab-availability">Availability</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#tab-open">Open Shifts</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Schedule Tab -->
+        <div class="tab-pane fade show active" id="tab-schedule">
+            {% include 'shifts/partials/home_partial.html' %}
+        </div>
+
+        <!-- Time Off Tab -->
+        <div class="tab-pane fade" id="tab-timeoff">
+            {% include 'shifts/partials/timeoff_partial.html' %}
+        </div>
+
+        <!-- Availability Tab -->
+        <div class="tab-pane fade" id="tab-availability">
+            {% include 'shifts/partials/availability_partial.html' %}
+        </div>
+
+        <!-- Available Shifts Tab -->
+        <div class="tab-pane fade" id="tab-open">
+            {% include 'shifts/partials/available_shifts_partial.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

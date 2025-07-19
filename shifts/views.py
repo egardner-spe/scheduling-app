@@ -2,12 +2,31 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import modelformset_factory, formset_factory
+from django.utils import timezone
 from .models import Shift, TimeOffRequest, ShiftPickupRequest, Availability
 from .forms import TimeOffRequestForm, RegisterForm, ShiftPickupRequestForm, AvailabilityForm
 from django.contrib.auth.decorators import user_passes_test
 
 def is_manager(user):
     return user.is_staff
+
+@login_required
+def dashboard(request):
+    # Employee’s upcoming shifts
+    shifts = Shift.objects.filter(user=request.user, date__gte=timezone.now()).order_by('date')
+    # Their time-off requests
+    time_off = TimeOffRequest.objects.filter(user=request.user).order_by('-start_date')
+    # Their availability
+    availabilities = Availability.objects.filter(user=request.user).order_by('day')
+    # Shifts up for grabs
+    available_shifts = Shift.objects.filter(is_dropped=True, user=None).order_by('date')
+
+    return render(request, 'shifts/dashboard.html', {
+        'shifts': shifts,
+        'time_off': time_off,
+        'availabilities': availabilities,
+        'available_shifts': available_shifts,
+    })
 
 @user_passes_test(is_manager)
 def view_shift_schedule(request):

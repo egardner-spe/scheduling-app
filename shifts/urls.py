@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # Authentication & Home
-    path('', views.home, name='home'),
+    path('', views.dashboard, name='dashboard'),
     path('register/', views.register, name='register'),
 
     # Time Off Requests
@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/schedule/', views.view_shift_schedule, name='view_shift_schedule'),
 
     # Schedule & Availability
-    path('my-schedule/', views.view_my_schedule, name='user_schedule'),
+    path('schedule/', views.view_my_schedule, name='my_schedule'),
     path('set-availability/', views.set_availability, name='set_availability'),
 
     # Optional: View all users’ availabilities (Manager only)

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Dashboard Partial</title>
+</head>
+<body>
+
+<div class="container mt-4">
+  <h2 class="mb-3">Welcome, {{ user.username|title }}!</h2>
+
+  {% if shifts %}
+  <h4 class="mb-3">Your Upcoming Shifts</h4>
+  <ul class="list-group">
+    {% for shift in shifts %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <strong>{{ shift.date }}</strong><br>
+        {{ shift.start_time }} – {{ shift.end_time }}
+      </div>
+      <span class="badge bg-success text-white">Scheduled</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="alert alert-info mt-4">
+    You don't have any upcoming shifts.
+  </div>
+  {% endif %}
+</div>
+
+</body>
+</html>

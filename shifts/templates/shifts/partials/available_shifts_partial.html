@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div>
+  <h2>Available Shifts to Pick Up</h2>
+  <ul>
+    {% for s in available_shifts %}
+    <li>
+      {{ s.date }} - {{ s.start_time }} to {{ s.end_time }}
+      <form method="post" action="{% url 'request_pickup' s.id %}">
+        {% csrf_token %}
+        <button type="submit">Request to Pick Up</button>
+      </form>
+    </li>
+    {% empty %}
+    <li>No available shifts at the moment.</li>
+    {% endfor %}
+  </ul>
+
+</body>
+</html>
